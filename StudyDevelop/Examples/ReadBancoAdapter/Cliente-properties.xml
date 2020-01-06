@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+   <entry key="CLIENTE.NOME:db_column_not_null">false</entry>
+   <entry key="CLIENTE.NOME:db_column_type">VARCHAR2</entry>
+   <entry key="CLIENTE.CPF:db_column_size">11</entry>
+   <entry key="CLIENTE:db_column_2">CPF</entry>
+   <entry key="CLIENTE:db_column_1">NOME</entry>
+   <entry key="CLIENTE.CLIENTE_ID:db_column_type">NUMBER</entry>
+   <entry key="CLIENTE:db_column_0">CLIENTE_ID</entry>
+   <entry key="CLIENTE.NOME:db_column_size">50</entry>
+   <entry key="CLIENTE.CPF:db_column_not_null">false</entry>
+   <entry key="CLIENTE:db_table_type">TABLE</entry>
+   <entry key="CLIENTE.CLIENTE_ID:db_column_precision">0</entry>
+   <entry key="root_descriptor_alias">CLIENTE</entry>
+   <entry key="CLIENTE.CLIENTE_ID:db_column_not_null">true</entry>
+   <entry key="CLIENTE.CPF:db_column_type">VARCHAR2</entry>
+</properties>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="BPELCliente" targetNamespace="http://xmlns.oracle.com/SOAEXPERT/BancoAdapter/BPELCliente" xmlns="http://schemas.xmlsoap.org/ws/2003/03/business-process/" xmlns:client="http://xmlns.oracle.com/SOAEXPERT/BancoAdapter/BPELCliente" xmlns:ora="http://schemas.oracle.com/xpath/extension" xmlns:bpelx="http://schemas.oracle.com/bpel/extension" xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/" xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/db/SOAEXPERT/BancoAdapter/DbCliente" xmlns:bpel2="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:ns2="http://xmlns.oracle.com/pcbpel/adapter/db/top/DbCliente" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="BpPrc0">
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+    <partnerLinks>
+        <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+        <partnerLink name="bpelcliente_client" partnerLinkType="client:BPELCliente" myRole="BPELClienteProvider" partnerRole="BPELClienteRequester"/>
+        <partnerLink name="DbCliente" partnerLinkType="ns1:DbCliente_plt" partnerRole="DbCliente_role"/>
+    </partnerLinks>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        VARIABLES                                                        
+        List of messages and XML documents used within this BPEL process 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <variables>
+        <!-- Reference to the message passed as input during initiation -->
+        <variable name="inputVariable" messageType="client:BPELClienteRequestMessage"/>
+
+        <!-- Reference to the message that will be sent back to the requester during callback -->
+        <variable name="outputVariable" messageType="client:BPELClienteResponseMessage"/>
+        <variable name="Cliente_InputVariable" messageType="ns1:ClienteCollection_msg"/>
+        <variable name="Cliente_OutputVariable" messageType="ns1:ClienteCollection_msg"/>
+    </variables>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       ORCHESTRATION LOGIC                                               
+       Set of activities coordinating the flow of messages across the    
+       services integrated within this business process                  
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <sequence name="main" id="BpSeq0">
+        <!-- Receive input from requestor. (Note: This maps to operation defined in BPELCliente.wsdl) -->
+        <receive name="receiveInput" partnerLink="bpelcliente_client" portType="client:BPELCliente" operation="process" variable="inputVariable" createInstance="yes" id="BpRcv0"/>
+        <assign name="AssignCliente" id="BpAss0">
+            <copy>
+                <from variable="inputVariable" part="payload" query="/client:process/client:id"/>
+                <to variable="Cliente_InputVariable" part="ClienteCollection" query="/ns2:ClienteCollection/ns2:Cliente/ns2:clienteId"/>
+            </copy>
+            <copy>
+                <from variable="inputVariable" part="payload" query="/client:process/client:nome"/>
+                <to variable="Cliente_InputVariable" part="ClienteCollection" query="/ns2:ClienteCollection/ns2:Cliente/ns2:nome"/>
+            </copy>
+            <copy>
+                <from variable="inputVariable" part="payload" query="/client:process/client:cpf"/>
+                <to variable="Cliente_InputVariable" part="ClienteCollection" query="/ns2:ClienteCollection/ns2:Cliente/ns2:cpf"/>
+            </copy>
+        </assign>
+        <invoke name="InvokeCliente" inputVariable="Cliente_InputVariable" outputVariable="Cliente_OutputVariable" partnerLink="DbCliente" portType="ns1:DbCliente_ptt" operation="insert" bpelx:invokeAsDetail="no" id="BpInv0"/>
+        <!-- 
+          Asynchronous callback to the requester. (Note: the callback location and correlation id is transparently handled using WS-addressing.)
+        -->
+        <invoke name="callbackClient" partnerLink="bpelcliente_client" portType="client:BPELClienteCallback" operation="processResponse" inputVariable="outputVariable" id="BpInv1"/>
+    </sequence>
+</process><!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Wed Mar 20 21:26:01 BRT 2013
+  Author:  fsoa34
+  Type: BPEL 1.1 Process
+  Purpose: Asynchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->

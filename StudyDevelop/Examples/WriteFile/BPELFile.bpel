@@ -1,0 +1,89 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Mon Mar 25 19:45:53 BRT 2013
+  Author:  fsoa34
+  Type: BPEL 2.0 Process
+  Purpose: Asynchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="BPELFile"
+         targetNamespace="http://xmlns.oracle.com/SOAEXPERT/WriteFile/BPELFile"
+         xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:client="http://xmlns.oracle.com/SOAEXPERT/WriteFile/BPELFile"
+         xmlns:ora="http://schemas.oracle.com/xpath/extension"
+         xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/file/SOAEXPERT/WriteFile/Write"
+         xmlns:ns2="http://TargetNamespace.com/Write">
+
+    <import namespace="http://xmlns.oracle.com/SOAEXPERT/WriteFile/BPELFile" location="BPELFile.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+    <partnerLinks>
+        <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+        <partnerLink name="bpelfile_client" partnerLinkType="client:BPELFile" myRole="BPELFileProvider" partnerRole="BPELFileRequester"/>
+        <partnerLink name="Write" partnerLinkType="ns1:Write_plt"
+                     partnerRole="Write_role"/>
+    </partnerLinks>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        VARIABLES                                                        
+        List of messages and XML documents used within this BPEL process 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <variables>
+        <!-- Reference to the message passed as input during initiation -->
+        <variable name="inputVariable" messageType="client:BPELFileRequestMessage"/>
+
+        <!-- Reference to the message that will be sent back to the requester during callback -->
+        <variable name="outputVariable" messageType="client:BPELFileResponseMessage"/>
+        <variable name="Cliente_Write_InputVariable"
+                  messageType="ns1:Write_msg"/>
+    </variables>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       ORCHESTRATION LOGIC                                               
+       Set of activities coordinating the flow of messages across the    
+       services integrated within this business process                  
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <sequence name="main">
+        <!-- Receive input from requestor. (Note: This maps to operation defined in BPELFile.wsdl) -->
+        <receive name="receiveInput" partnerLink="bpelfile_client" portType="client:BPELFile" operation="process" variable="inputVariable" createInstance="yes"/>
+        <assign name="AssignCliente">
+            <copy>
+                <from>$inputVariable.payload/client:id</from>
+                <to>$Cliente_Write_InputVariable.body/ns2:id</to>
+            </copy>
+            <copy>
+                <from>$inputVariable.payload/client:nome</from>
+                <to>$Cliente_Write_InputVariable.body/ns2:nome</to>
+            </copy>
+            <copy>
+                <from>$inputVariable.payload/client:cpf</from>
+                <to>$Cliente_Write_InputVariable.body/ns2:cpf</to>
+            </copy>
+        </assign>
+        <invoke name="InvokeFile"
+                partnerLink="Write" portType="ns1:Write_ptt" operation="Write"
+                inputVariable="Cliente_Write_InputVariable"
+                bpelx:invokeAsDetail="no"/>
+        <!-- 
+          Asynchronous callback to the requester. (Note: the callback location and correlation id is transparently handled using WS-addressing.)
+        -->
+        <invoke name="callbackClient" partnerLink="bpelfile_client" portType="client:BPELFileCallback" operation="processResponse" inputVariable="outputVariable"/>
+    </sequence>
+</process>

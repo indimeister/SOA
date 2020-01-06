@@ -1,0 +1,17 @@
+<adapter-config name="Read" adapter="File Adapter" wsdlLocation="Read.wsdl" xmlns="http://platform.integration.oracle/blocks/adapter/fw/metadata">
+  
+  <connection-factory location="eis/FileAdapter" UIincludeWildcard="*.chn"/>
+  <endpoint-activation portType="Read_ptt" operation="Read">
+    <activation-spec className="oracle.tip.adapter.file.inbound.FileActivationSpec">
+      <property name="DeleteFile" value="true"/>
+      <property name="MinimumAge" value="0"/>
+      <property name="PhysicalDirectory" value="/home/fsoa34/Read"/>
+      <property name="Recursive" value="true"/>
+      <property name="PollingFrequency" value="5"/>
+      <property name="PhysicalArchiveDirectory" value="/home/fsoa34/bkp"/>
+      <property name="IncludeFiles" value=".*\.chn"/>
+      <property name="UseHeaders" value="false"/>
+    </activation-spec>
+  </endpoint-activation>
+
+</adapter-config>

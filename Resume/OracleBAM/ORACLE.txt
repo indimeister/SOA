@@ -1,0 +1,49 @@
+﻿Oracle
+
+
+IDM
+
+-> Tinhamos o composite de Atlys publicado com exito, porem após uns dias ele começou a dar problemas no filtro faltava: xmlns:be="http://oracle.com/fabric/businessEvent"
+
+							*** MonitorarGestaoIdentidade
+
+-> BAM as vezes funciona bem, porém as vezes temos o erro: Non Recoverable System Fault :
+Exception occured when binding was invoked. Exception occured during invocation of JCA binding: "JCA Binding execute of Reference operation 'writetoBAM' failed due to:
+javax.resource.ResourceException: javax.xml.ws.WebServiceException: javax.xml.soap.SOAPException: javax.xml.soap.SOAPException: Message send failed: Connection refused".
+The invoked JCA adapter raised a resource exception. Please examine the above error message carefully to determine a resolution.
+
+
+AUTENTICARSIMCARD
+
+-> Quando mandos 10 chega 5 (exemplo) - não intrusivo.
+Porémd e enviarmos de 1 em 1, ele le todos.
+
+
+DEPLOY
+
+-> Como realizar o deploy no serv Prod
+->export e o import???
+
+
+
+Solução
+
+Pedir para estender o dominnio DS/HML. Instalando o BAM!
+
+Ambiente BATCH
+
+Pedi acesso a todos os logs de HML
+
+
+Temos tres tipo de solução para evento do bam
+
+adapter
+sensor
+web service
+
+
+Teria como executar via uma procedure por exemplo o edn que utiliza uma proc para pode alimentar seus eventos.
+
+
+
+

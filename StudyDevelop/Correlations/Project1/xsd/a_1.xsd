@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:nxsd="http://xmlns.oracle.com/pcbpel/nxsd"
+            xmlns:tns="http://TargetNamespace.com/envioArquivo"
+            targetNamespace="http://TargetNamespace.com/envioArquivo"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+
+            nxsd:version="NXSD"
+            nxsd:stream="chars"
+            nxsd:encoding="US-ASCII"
+>
+
+
+  <xsd:element name="req">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:int" nxsd:style="terminated" nxsd:terminatedBy="," nxsd:quotedBy="&quot;" />
+        <xsd:element name="cnpj" type="xsd:int" nxsd:style="terminated" nxsd:terminatedBy="," nxsd:quotedBy="&quot;" />
+        <xsd:element name="nome" type="xsd:string" nxsd:style="terminated" nxsd:terminatedBy="," nxsd:quotedBy="&quot;" />
+        <xsd:element name="limite" type="xsd:int" nxsd:style="terminated" nxsd:terminatedBy="${eol}" nxsd:quotedBy="&quot;" />
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>
+<!--NXSDWIZ:/home/fsoa34/tmp2/a.txt:-->
+<!--USE-HEADER:false:-->

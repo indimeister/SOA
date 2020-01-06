@@ -1,0 +1,23 @@
+Exportação de reports:
+Exportando o folder dos “Meus Relatorios”:
+./icommand -cmd export -name ”/private:weblogic/Report/Meus Relatórios/Coleções” -type folder -file teste.xml
+Exportando o folder “Relatorios compartilhados”:
+./icommand -cmd export -name ”/public/Report/MainFolderInShared” -type folder -file C:\FolderExportTest2.xml
+Exportando um relatorio privado:
+./icommand -cmd export -name ”/private:bamadmin/Report/MyReport” -type report -file C:\MyReport.xml
+Exportando de “Relatorios Compartilhados”:
+./icommand -cmd export -name ”/public/Report/SharedReport” -type report -file C:\SharedReport.xml
+Exportação de data objects:
+Exporting a Data Object in a Folder:
+./icommand -cmd export -name ”/Samples/Call Center” -file “C:\CallCenter.xml”
+Exporting a Data Object at the Root:
+./icommand -cmd export -name TestDataObject -file “C:\TestDataObject.xml”
+Exporting a Folder from Data Objects:
+./icommand -cmd export -name ”/public/DataObject/Colecoes/Desempenho por Marcas” -type folder -file objects.xml
+Importação de objetos (reports, data objects, etc):
+./icommand -cmd import -file /home/oracle/Middleware/home_soa11g/Oracle_SOA1/bam/bin/teste.xml
+Para maiores informações, consulte:
+http://download.oracle.com/docs/cd/E12839_01/integration.1111/e10224/bam_app_icommand.htm
+
+
+./icommand –cmd export –name AutenticaSIMCARD “/public/Report/Shared Report/Default” –typefolder –file AutenticacaoSIMCARD.xml

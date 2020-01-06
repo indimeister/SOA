@@ -1,0 +1,56 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Mon Mar 25 21:09:50 BRT 2013
+  Author:  fsoa34
+  Type: BPEL 2.0 Process
+  Purpose: Empty BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="BPELCliente"
+               targetNamespace="http://xmlns.oracle.com/SOAEXPERT/ReadFile/BPELCliente"
+               xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+               xmlns:client="http://xmlns.oracle.com/SOAEXPERT/ReadFile/BPELCliente"
+               xmlns:ora="http://schemas.oracle.com/xpath/extension"
+               xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/file/SOAEXPERT/ReadFile/Read"
+         xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:ns2="http://xmlns.oracle.com/SOAEXPERT/WriteFile/BPELFile">
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <partnerLinks>
+    <partnerLink name="Read" partnerLinkType="ns1:Read_plt" myRole="Read_role"/>
+    <partnerLink name="WSWrite" partnerLinkType="ns2:BPELFile"
+                 myRole="BPELFileRequester" partnerRole="BPELFileProvider"/>
+  </partnerLinks>
+  <variables>
+    <variable name="ReceiveCliente_InputVariable" messageType="ns1:Read_msg"/>
+    <variable name="InvokeCliente_process_InputVariable"
+              messageType="ns2:BPELFileRequestMessage"/>
+  </variables>
+  <sequence name="main">
+    <receive name="ReceiveCliente" createInstance="yes" partnerLink="Read"
+             portType="ns1:Read_ptt" operation="Read"
+             variable="ReceiveCliente_InputVariable"/>
+    <assign name="TransformCliente">
+      <bpelx:annotation>
+        <bpelx:pattern patternName="bpelx:transformation"/>
+      </bpelx:annotation>
+      <copy>
+        <from>ora:doXSLTransformForDoc("xsl/Transformation_cliente.xsl", $ReceiveCliente_InputVariable.body)</from>
+        <to variable="InvokeCliente_process_InputVariable" part="payload"/>
+      </copy>
+    </assign>
+    <invoke name="InvokeCliente" bpelx:invokeAsDetail="no"
+            partnerLink="WSWrite" portType="ns2:BPELFile" operation="process"
+            inputVariable="InvokeCliente_process_InputVariable"/>
+  </sequence>
+</process>

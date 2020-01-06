@@ -1,0 +1,120 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Mon Apr 01 20:00:35 BRT 2013
+  Author:  fsoa34
+  Type: BPEL 2.0 Process
+  Purpose: Asynchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="BPELCalcula"
+         targetNamespace="http://xmlns.oracle.com/Correlations/Project1/BPELCalcula"
+         xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:client="http://xmlns.oracle.com/Correlations/Project1/BPELCalcula"
+         xmlns:ora="http://schemas.oracle.com/xpath/extension"
+         xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/file/Correlations/Project1/envioArquivo"
+         xmlns:ns2="http://xmlns.oracle.com/pcbpel/adapter/file/Correlations/Project1/RecebimentoResultado"
+         xmlns:ns3="http://TargetNamespace.com/envioArquivo"
+         xmlns:ns4="http://TargetNamespace.com/RecebimentoResultado"
+         xmlns:ns5="http://xmlns.oracle.com/Correlations/Project1/BPELCalcula/correlationset">
+
+    <import namespace="http://xmlns.oracle.com/Correlations/Project1/BPELCalcula" location="BPELCalcula.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+    <partnerLinks>
+        <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+        <partnerLink name="bpelcalcula_client" partnerLinkType="client:BPELCalcula" myRole="BPELCalculaProvider" partnerRole="BPELCalculaRequester"/>
+        <partnerLink name="envioArquivo" partnerLinkType="ns1:Write_plt"
+                     partnerRole="Write_role"/>
+        <partnerLink name="RecebimentoResultado" partnerLinkType="ns2:Read_plt"
+                     myRole="Read_role"/>
+    </partnerLinks>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        VARIABLES                                                        
+        List of messages and XML documents used within this BPEL process 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <variables>
+        <!-- Reference to the message passed as input during initiation -->
+        <variable name="inputVariable" messageType="client:BPELCalculaRequestMessage"/>
+
+        <!-- Reference to the message that will be sent back to the requester during callback -->
+        <variable name="outputVariable" messageType="client:BPELCalculaResponseMessage"/>
+        <variable name="InvokeGrava_Write_InputVariable"
+                  messageType="ns1:Write_msg"/>
+        <variable name="ReceiveRecebe_InputVariable"
+                  messageType="ns2:Read_msg"/>
+    </variables>
+    <correlationSets>
+        <correlationSet name="Correlation" properties="ns5:id"/>
+    </correlationSets>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       ORCHESTRATION LOGIC                                               
+       Set of activities coordinating the flow of messages across the    
+       services integrated within this business process                  
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <sequence name="main">
+        <!-- Receive input from requestor. (Note: This maps to operation defined in BPELCalcula.wsdl) -->
+        <receive name="receiveInput" partnerLink="bpelcalcula_client" portType="client:BPELCalcula" operation="process" variable="inputVariable" createInstance="yes">
+            <correlations>
+                <correlation set="Correlation" initiate="yes"/>
+            </correlations>
+        </receive>
+        <assign name="AssignGrava">
+            <copy>
+                <from>$inputVariable.payload/client:id</from>
+                <to>$InvokeGrava_Write_InputVariable.body/ns3:id</to>
+            </copy>
+            <copy>
+                <from>$inputVariable.payload/client:cnpj</from>
+                <to>$InvokeGrava_Write_InputVariable.body/ns3:cnpj</to>
+            </copy>
+            <copy>
+                <from>$inputVariable.payload/client:nome</from>
+                <to>$InvokeGrava_Write_InputVariable.body/ns3:nome</to>
+            </copy>
+            <copy>
+                <from>$inputVariable.payload/client:limite</from>
+                <to>$InvokeGrava_Write_InputVariable.body/ns3:limite</to>
+            </copy>
+        </assign>
+        <invoke name="InvokeGrava"
+                partnerLink="envioArquivo" portType="ns1:Write_ptt"
+                operation="Write"
+                inputVariable="InvokeGrava_Write_InputVariable"
+                bpelx:invokeAsDetail="no"/>
+        <receive name="ReceiveRecebe" createInstance="no"
+                 partnerLink="RecebimentoResultado" portType="ns2:Read_ptt"
+                 operation="Read" variable="ReceiveRecebe_InputVariable">
+            <correlations>
+                <correlation set="Correlation" initiate="no"/>
+            </correlations>
+        </receive>
+        <assign name="AssignSaida">
+            <copy>
+                <from>$ReceiveRecebe_InputVariable.body/ns4:status</from>
+                <to>$outputVariable.payload/client:result</to>
+            </copy>
+        </assign>
+        <!-- 
+          Asynchronous callback to the requester. (Note: the callback location and correlation id is transparently handled using WS-addressing.)
+        -->
+        <invoke name="callbackClient" partnerLink="bpelcalcula_client" portType="client:BPELCalculaCallback" operation="processResponse" inputVariable="outputVariable"/>
+    </sequence>
+</process>

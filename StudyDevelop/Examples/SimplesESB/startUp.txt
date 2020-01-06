@@ -1,0 +1,7 @@
+
+NodeManager: /Oracle/MiddlewareSOA/wlserver_10.3/server/bin$ 
+
+
+WebLogic: /Oracle/MiddlewareSOA/user_projects/domains/bpelbam_domain$
+
+Jdev: racle/IDE/jdeveloper/jdev/bin/
